@@ -63,3 +63,9 @@ export function isCancelAction(record: GenericRecord): boolean {
   const action = getField(record, ["acao", "action"]);
   return action.toLowerCase().includes("cancel");
 }
+
+/** Extract the empresa (company) field from a record. Returns lower-cased value. */
+export function getRecordEmpresa(record: GenericRecord): string {
+  const value = getField(record, ["empresa", "Empresa", "company", "Company", "client", "cliente"]);
+  return value.toLowerCase().trim();
+}

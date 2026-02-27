@@ -9,7 +9,9 @@ import { cn } from "@/lib/utils";
 
 type AppShellProps = {
   user: string;
+  role?: string;
   children: React.ReactNode;
+  title?: string;
 };
 
 function getTitle(pathname: string): string {
@@ -18,6 +20,8 @@ function getTitle(pathname: string): string {
   if (pathname.startsWith("/acoes")) return "Ações";
   if (pathname.startsWith("/cancelamentos")) return "Cancelamentos";
   if (pathname.startsWith("/emails")) return "Emails";
+  if (pathname.startsWith("/configuracoes/usuarios")) return "Usuários";
+  if (pathname.startsWith("/configuracoes")) return "Configurações";
   return "Painel";
 }
 
@@ -29,31 +33,36 @@ function MenuIcon() {
   );
 }
 
-export function AppShell({ user, children }: AppShellProps) {
+export function AppShell({ user, role, children, title }: AppShellProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const currentTitle = useMemo(() => getTitle(pathname), [pathname]);
+  const currentTitle = useMemo(() => title || getTitle(pathname), [pathname, title]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="noise-bg min-h-screen bg-[#050507] text-foreground">
       <div className="lg:grid lg:grid-cols-[260px_1fr]">
-        <aside className="hidden border-r border-slate-200 bg-white lg:block">
-          <SidebarNav user={user} />
+        <aside className="hidden border-r border-border/40 bg-[#090d16]/80 backdrop-blur-xl lg:block">
+          <SidebarNav user={user} role={role} />
         </aside>
 
         <div className="min-w-0">
-          <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
+          <header className="sticky top-0 z-20 border-b border-border/40 bg-[#0b0f19]/80 backdrop-blur-xl">
             <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(true)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:bg-secondary/40 hover:text-foreground lg:hidden"
+                  onClick={() => setOpen(true)}
+                >
                   <MenuIcon />
                 </Button>
-                <p className="text-sm font-semibold text-slate-900">{currentTitle}</p>
+                <p className="font-display text-sm font-600 tracking-wide text-foreground">{currentTitle}</p>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="hidden text-xs text-slate-500 sm:inline">{user}</span>
+                <span className="hidden text-xs text-muted-foreground sm:inline">{user}</span>
                 <LogoutButton compact />
               </div>
             </div>
@@ -65,7 +74,7 @@ export function AppShell({ user, children }: AppShellProps) {
 
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-slate-900/40 transition-opacity lg:hidden",
+          "fixed inset-0 z-40 bg-black/70 transition-opacity lg:hidden",
           open ? "opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={() => setOpen(false)}
@@ -73,12 +82,14 @@ export function AppShell({ user, children }: AppShellProps) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-slate-200 bg-white shadow-xl transition-transform lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-border/40 bg-[#090d16]/95 shadow-xl backdrop-blur-xl transition-transform lg:hidden",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <SidebarNav user={user} onNavigate={() => setOpen(false)} />
+        <SidebarNav user={user} role={role} onNavigate={() => setOpen(false)} />
       </aside>
     </div>
   );
 }
+
+export default AppShell;

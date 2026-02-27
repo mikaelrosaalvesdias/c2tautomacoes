@@ -6,5 +6,9 @@ export const dynamic = "force-dynamic";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await requirePageAuth();
 
-  return <AppShell user={session.user}>{children}</AppShell>;
+  return (
+    <AppShell user={session.email} role={session.role}>
+      {children}
+    </AppShell>
+  );
 }

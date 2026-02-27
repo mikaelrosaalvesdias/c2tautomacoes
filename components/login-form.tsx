@@ -42,23 +42,25 @@ export function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Entrar no painel</CardTitle>
-          <CardDescription>Acesse com as credenciais administrativas configuradas no ambiente.</CardDescription>
+          <CardDescription>Acesse com seu email e senha cadastrados.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label htmlFor="username" className="text-sm font-medium text-slate-700">
-                Usuário ou e-mail
+                Email
               </label>
               <Input
                 id="username"
+                type="email"
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 autoComplete="username"
+                placeholder="seu@email.com"
                 required
               />
             </div>
@@ -87,6 +89,14 @@ export function LoginForm() {
           </form>
         </CardContent>
       </Card>
+
+      <p className="mt-6 text-center text-xs text-slate-500">
+        <a href="/privacy" className="hover:underline">Política de Privacidade</a>
+        {" · "}
+        <a href="/terms" className="hover:underline">Termos de Uso</a>
+        {" · "}
+        © {new Date().getFullYear()} C2Tech
+      </p>
     </div>
   );
 }
