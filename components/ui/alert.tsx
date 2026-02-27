@@ -5,12 +5,12 @@ export function Alert({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
   return (
     <div
       role="alert"
-      className={cn("relative w-full rounded-lg border border-border/50 bg-secondary/35 p-4 text-foreground", className)}
+      className={cn("relative flex items-start gap-3 rounded-lg border p-4 text-sm", className)}
       {...props}
     />
   );
 }
 
-export function AlertDescription({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("text-sm leading-relaxed", className)} {...props} />;
+export function AlertDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
+  return <p className={cn("leading-relaxed", className)} {...props} />;
 }

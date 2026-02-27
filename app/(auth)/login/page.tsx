@@ -4,13 +4,6 @@ import { getSessionFromCookieStore } from "@/lib/auth";
 
 export default async function LoginPage() {
   const session = await getSessionFromCookieStore();
-  if (session) {
-    redirect("/");
-  }
-
-  return (
-    <main className="min-h-screen bg-slate-100">
-      <LoginForm />
-    </main>
-  );
+  if (session) redirect("/");
+  return <LoginForm />;
 }
