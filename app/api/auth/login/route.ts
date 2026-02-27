@@ -27,8 +27,27 @@ export async function POST(request: NextRequest) {
   const userAgent = request.headers.get("user-agent") ?? "unknown";
 
   const raw = await parseLoginBody(request);
+  const rawUsername = (raw.username ?? "").trim();
+  const rawPassword = raw.password ?? "";
 
-  // Validate input
+  if (!rawUsername || !rawPassword) {
+    return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
+  }
+
+  // ── Break-glass check (before email validation — admin may not use email) ──
+  if (verifyBreakGlass(rawUsername, rawPassword)) {
+    const rlKey = loginRateLimitKey(ip, rawUsername);
+    const rl = checkRateLimit(rlKey, RATE_LIMIT);
+    if (!rl.allowed) return tooManyRequests();
+
+    const token = createBreakGlassSession();
+    const response = NextResponse.json({ ok: true });
+    response.cookies.set(AUTH_COOKIE_NAME, token, getAuthCookieOptions(request));
+    await writeAuditLog({ user_email: rawUsername, action: "login_success_breakglass", resource: "auth", ip, user_agent: userAgent });
+    return response;
+  }
+
+  // ── Normal user login — requires valid email ──────────────────────────────
   const parseResult = loginSchema.safeParse(raw);
   if (!parseResult.success) {
     return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
@@ -37,23 +56,10 @@ export async function POST(request: NextRequest) {
   const email = parseResult.data.username;
   const password = parseResult.data.password;
 
-  // Rate limit by ip + email
   const rlKey = loginRateLimitKey(ip, email);
   const rl = checkRateLimit(rlKey, RATE_LIMIT);
-  if (!rl.allowed) {
-    return tooManyRequests();
-  }
+  if (!rl.allowed) return tooManyRequests();
 
-  // ── Break-glass check ──────────────────────────────────────────────────────
-  if (verifyBreakGlass(email, password)) {
-    const token = createBreakGlassSession();
-    const response = NextResponse.json({ ok: true });
-    response.cookies.set(AUTH_COOKIE_NAME, token, getAuthCookieOptions(request));
-    await writeAuditLog({ user_email: email, action: "login_success_breakglass", resource: "auth", ip, user_agent: userAgent });
-    return response;
-  }
-
-  // ── Normal user lookup ─────────────────────────────────────────────────────
   let user;
   try {
     user = await getUserByEmail(email);
@@ -91,7 +97,6 @@ export async function POST(request: NextRequest) {
 
   const response = NextResponse.json({ ok: true, forcePasswordReset: user.force_password_reset ?? false });
   response.cookies.set(AUTH_COOKIE_NAME, token, getAuthCookieOptions(request));
-
   await writeAuditLog({ user_email: email, action: "login_success", resource: "auth", ip, user_agent: userAgent });
 
   return response;

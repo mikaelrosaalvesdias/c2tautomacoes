@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # security_smoke_test.sh — Validates security controls
-# Tests: 401 without cookie, 403 wrong permission, empresa scope isolation
+# Tests: 401 without cookie, 403 wrong permission, rate-limit, headers, public pages
 set -euo pipefail
 
 ROOT="/opt/automacoes_c2tech"
 cd "$ROOT"
+
+# Save PORT from command line BEFORE sourcing .env
+FORCED_PORT="${PORT:-}"
 
 if [ ! -f ".env" ]; then
   echo "Arquivo .env não encontrado em $ROOT" >&2
@@ -15,6 +18,8 @@ set -a
 source .env
 set +a
 
+# Command-line PORT takes precedence over .env PORT
+if [ -n "$FORCED_PORT" ]; then PORT="$FORCED_PORT"; fi
 PORT="${PORT:-3010}"
 BASE_URL="http://127.0.0.1:${PORT}"
 PASS_COUNT=0
@@ -77,24 +82,24 @@ check_header "Content-Security-Policy"
 echo ""
 echo "── Teste C: Rate limit no login ──"
 
-# Try 11 rapid failed logins with a dummy email
+# Use a unique email per test run to avoid collisions
+RATE_EMAIL="ratelimit_$(date +%s)@smoke.test"
 RATE_LIMIT_HIT=false
 for i in $(seq 1 12); do
   status="$(
     curl -sS -o "$RESP_FILE" -w '%{http_code}' \
       -H 'Content-Type: application/json' \
-      -d '{"username":"ratelimit_test@smoke.test","password":"wrongpassword"}' \
+      -d "{\"username\":\"${RATE_EMAIL}\",\"password\":\"wrongpassword${i}\"}" \
       "${BASE_URL}/api/auth/login"
   )"
   if [ "$status" = "429" ]; then
     RATE_LIMIT_HIT=true
+    pass "Rate limit ativado na tentativa ${i} (HTTP 429)"
     break
   fi
 done
 
-if $RATE_LIMIT_HIT; then
-  pass "Rate limit ativado após tentativas excessivas (HTTP 429)"
-else
+if ! $RATE_LIMIT_HIT; then
   fail "Rate limit NÃO ativado após 12 tentativas (esperado HTTP 429)"
 fi
 
@@ -105,7 +110,6 @@ echo "── Teste D: Admin routes require admin session ──"
 ADMIN_COOKIE_FILE="/tmp/c2tech_admin.cookies"
 rm -f "$ADMIN_COOKIE_FILE"
 
-# Try to login with break-glass if ENABLE_BREAK_GLASS=true
 if [ "${ENABLE_BREAK_GLASS:-false}" = "true" ] && [ -n "${APP_ADMIN_USER:-}" ] && [ -n "${APP_ADMIN_PASS:-}" ]; then
   bg_status="$(
     curl -sS -o "$RESP_FILE" -w '%{http_code}' \
@@ -116,8 +120,6 @@ if [ "${ENABLE_BREAK_GLASS:-false}" = "true" ] && [ -n "${APP_ADMIN_USER:-}" ] &
   )"
   if [ "$bg_status" = "200" ]; then
     pass "Break-glass login OK"
-
-    # Admin should access /api/admin/users
     admin_status="$(curl -sS -o "$RESP_FILE" -w '%{http_code}' -b "$ADMIN_COOKIE_FILE" "${BASE_URL}/api/admin/users")"
     check_status "GET /api/admin/users com sessão admin" "200" "$admin_status"
   else
@@ -138,16 +140,13 @@ check_status "GET /privacy (sem cookie)" "200" "$privacy_status"
 terms_status="$(curl -sS -o "$RESP_FILE" -w '%{http_code}' "${BASE_URL}/terms")"
 check_status "GET /terms (sem cookie)" "200" "$terms_status"
 
-# ── 6) Login page publicly accessible ─────────────────────────────────────────
 login_status="$(curl -sS -o "$RESP_FILE" -w '%{http_code}' "${BASE_URL}/login")"
 check_status "GET /login (sem cookie)" "200" "$login_status"
 
-# ── 7) Protected page redirects to login ──────────────────────────────────────
+# ── 6) Protected page redirects to login ──────────────────────────────────────
 echo ""
 echo "── Teste F: Redirect sem sessão ──"
 
-dash_status="$(curl -sS -o "$RESP_FILE" -w '%{http_code}' -L "${BASE_URL}/")"
-# After redirect chain, should land on login (200) or be a redirect (302/307)
 dash_initial="$(curl -sS -o "$RESP_FILE" -w '%{http_code}' "${BASE_URL}/")"
 if [ "$dash_initial" = "307" ] || [ "$dash_initial" = "302" ] || [ "$dash_initial" = "200" ]; then
   pass "GET / sem cookie → redirect ou login (HTTP $dash_initial)"
