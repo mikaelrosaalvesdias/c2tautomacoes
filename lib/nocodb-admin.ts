@@ -91,8 +91,44 @@ function getBaseId(): string {
   return id;
 }
 
-function tableUrl(tableName: string, rowId?: number | string): string {
-  const base = `${getBaseUrl()}/api/v1/db/data/v1/${getBaseId()}/${tableName}`;
+// ── Table ID resolution (NocoDB v2 requires table ID, not name) ──────────────
+
+let adminTableMapPromise: Promise<Map<string, string>> | null = null;
+
+async function fetchAdminTableMap(): Promise<Map<string, string>> {
+  const url = `${getBaseUrl()}/api/v2/meta/bases/${getBaseId()}/tables`;
+  const response = await fetch(url, {
+    cache: "no-store",
+    headers: { "xc-token": getToken() }
+  });
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`NocoDB meta ${response.status}: ${text.slice(0, 200)}`);
+  }
+  const payload = (await response.json()) as { list?: { id?: string; title?: string; table_name?: string }[] };
+  const map = new Map<string, string>();
+  for (const t of payload.list ?? []) {
+    if (!t.id) continue;
+    if (t.title) map.set(t.title.toLowerCase(), t.id);
+    if (t.table_name) map.set(t.table_name.toLowerCase(), t.id);
+  }
+  return map;
+}
+
+async function resolveAdminTableId(tableName: string): Promise<string> {
+  if (!adminTableMapPromise) {
+    adminTableMapPromise = fetchAdminTableMap().catch((err) => {
+      adminTableMapPromise = null;
+      throw err;
+    });
+  }
+  const map = await adminTableMapPromise;
+  return map.get(tableName.toLowerCase()) ?? tableName;
+}
+
+async function tableUrl(tableName: string, rowId?: number | string): Promise<string> {
+  const tableRef = await resolveAdminTableId(tableName);
+  const base = `${getBaseUrl()}/api/v1/db/data/v1/${getBaseId()}/${tableRef}`;
   return rowId !== undefined ? `${base}/${rowId}` : base;
 }
 
@@ -124,7 +160,7 @@ type NocoListResponse<T> = { list?: T[]; pageInfo?: unknown };
 async function listRows<T>(tableName: string, where?: string, limit = 200): Promise<T[]> {
   const params = new URLSearchParams({ limit: String(limit) });
   if (where) params.set("where", where);
-  const url = `${tableUrl(tableName)}?${params.toString()}`;
+  const url = `${await tableUrl(tableName)}?${params.toString()}`;
 
   try {
     const result = await nocoRequest<NocoListResponse<T>>(url);
@@ -136,21 +172,21 @@ async function listRows<T>(tableName: string, where?: string, limit = 200): Prom
 }
 
 async function createRow<T>(tableName: string, data: Partial<T>): Promise<T> {
-  return nocoRequest<T>(tableUrl(tableName), {
+  return nocoRequest<T>(await tableUrl(tableName), {
     method: "POST",
     body: JSON.stringify(data)
   });
 }
 
 async function updateRow<T>(tableName: string, rowId: number | string, data: Partial<T>): Promise<T> {
-  return nocoRequest<T>(tableUrl(tableName, rowId), {
+  return nocoRequest<T>(await tableUrl(tableName, rowId), {
     method: "PATCH",
     body: JSON.stringify(data)
   });
 }
 
 async function deleteRow(tableName: string, rowId: number | string): Promise<void> {
-  await nocoRequest<void>(tableUrl(tableName, rowId), { method: "DELETE" });
+  await nocoRequest<void>(await tableUrl(tableName, rowId), { method: "DELETE" });
 }
 
 // ── Usuarios ──────────────────────────────────────────────────────────────────
@@ -163,7 +199,7 @@ export async function getUserByEmail(email: string): Promise<NcUser | null> {
 
 export async function getUserById(id: number): Promise<NcUser | null> {
   try {
-    return await nocoRequest<NcUser>(tableUrl(TABLES.usuarios, id));
+    return await nocoRequest<NcUser>(await tableUrl(TABLES.usuarios, id));
   } catch {
     return null;
   }
