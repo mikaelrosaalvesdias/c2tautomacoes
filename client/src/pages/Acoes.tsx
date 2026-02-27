@@ -2,19 +2,31 @@ import { useState } from "react";
 import { Search, ChevronDown } from "lucide-react";
 import { useLocation } from "wouter";
 import Sidebar from "@/components/Sidebar";
+import { useAPI } from "@/hooks/useAPI";
+
+interface AcaoItem {
+  Id: number;
+  empresa: string;
+  email: string;
+  nome?: string;
+  acao: string;
+  lang: string;
+  motivo_cancelamento?: string;
+  created_at: string;
+}
 
 export default function Acoes() {
   const [, navigate] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const acoesData = [
-    { id: 1, created_at: "10/26/2023 11:30 AM", empresa: "C2 Tech", email: "john.doe@example.com", acao: "cancelar", lang: "PT-BR", motivo: "Cliente solicitou cancelamento direto" },
-    { id: 2, created_at: "10/26/2023 10:45 AM", empresa: "Acme Corp", email: "sarah.smith@acme.com", acao: "renovar", lang: "EN", motivo: "Processo de renovação anual iniciado" },
-    { id: 3, created_at: "10/26/2023 09:15 AM", empresa: "Globex", email: "mike.jones@globex.com", acao: "atualizar", lang: "ES", motivo: "Atualização de plano para nível superior" },
-    { id: 4, created_at: "10/25/2023 05:20 PM", empresa: "C2 Tech", email: "jane.l@c2tech.com", acao: "cancelar", lang: "PT-BR", motivo: "Inatividade prolongada da conta" },
-    { id: 5, created_at: "10/25/2023 03:40 PM", empresa: "Acme Corp", email: "robert.brown@acme.com", acao: "renovar", lang: "EN", motivo: "Renovação automática aprovada" },
-    { id: 6, created_at: "10/25/2023 12:55 PM", empresa: "Globex", email: "lisa.wong@globex.com", acao: "atualizar", lang: "ES", motivo: "Correção de dados cadastrais" },
-  ];
+  const { data: allItems, loading, error } = useAPI<AcaoItem>("/acoes", { limit: 200 });
+
+  const acoesData = allItems.filter(
+    (item) =>
+      !searchTerm ||
+      item.acao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.empresa?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getEmpresaColor = (empresa: string) => {
     const colors: Record<string, string> = {
@@ -26,12 +38,11 @@ export default function Acoes() {
   };
 
   const getAcaoColor = (acao: string) => {
-    const colors: Record<string, string> = {
-      "cancelar": "#FF4444",
-      "renovar": "#00FF00",
-      "atualizar": "#FFD700",
-    };
-    return colors[acao] || "#00FF00";
+    const lower = acao?.toLowerCase() ?? "";
+    if (lower.includes("cancel")) return "#FF4444";
+    if (lower.includes("renov") || lower.includes("boas-vindas") || lower.includes("resolv")) return "#00FF00";
+    if (lower.includes("atualiz") || lower.includes("follow") || lower.includes("proposta")) return "#FFD700";
+    return "#8A2BE2";
   };
 
   return (
@@ -67,66 +78,74 @@ export default function Acoes() {
             </button>
           </div>
 
-          {/* TABLE */}
-          <div className="rounded-2xl border-2 overflow-hidden" style={{ borderColor: "#00FF00", backgroundColor: "#1A1A1A" }}>
-            <table className="w-full">
-              <thead style={{ backgroundColor: "#2C2C2C" }}>
-                <tr>
-                  <th className="px-6 py-3 text-left text-gray-400">created_at</th>
-                  <th className="px-6 py-3 text-left text-gray-400">empresa</th>
-                  <th className="px-6 py-3 text-left text-gray-400">email</th>
-                  <th className="px-6 py-3 text-left text-gray-400">ação</th>
-                  <th className="px-6 py-3 text-left text-gray-400">lang</th>
-                  <th className="px-6 py-3 text-left text-gray-400">motivo_cancelamento</th>
-                </tr>
-              </thead>
-              <tbody>
-                {acoesData.map((item, idx) => (
-                  <tr
-                    key={item.id}
-                    className="border-t hover:bg-gray-900 transition-colors"
-                    style={{ borderColor: "#2C2C2C", backgroundColor: idx === 3 ? "rgba(0, 255, 0, 0.05)" : "transparent" }}
-                  >
-                    <td className="px-6 py-4 text-gray-300">{item.created_at}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 rounded-full text-sm font-semibold text-black" style={{ backgroundColor: getEmpresaColor(item.empresa) }}>
-                        {item.empresa}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-300">{item.email}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 rounded-full text-sm font-semibold text-black" style={{ backgroundColor: getAcaoColor(item.acao) }}>
-                        {item.acao}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-300">{item.lang}</td>
-                    <td className="px-6 py-4 text-gray-300">{item.motivo}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {loading && <div className="text-center py-8 text-gray-400">Carregando dados...</div>}
+          {error && <div className="text-center py-8 text-red-400">Erro ao carregar: {error}</div>}
 
-          {/* PAGINATION */}
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <button className="px-4 py-2 rounded-lg text-gray-400 hover:text-white" style={{ border: "1px solid #2C2C2C" }}>
-              Anterior
-            </button>
-            <button className="px-4 py-2 rounded-lg font-bold" style={{ backgroundColor: "#00FF00", color: "#000000" }}>
-              1
-            </button>
-            <button className="px-4 py-2 rounded-lg text-gray-400 hover:text-white" style={{ border: "1px solid #2C2C2C" }}>
-              2
-            </button>
-            <button className="px-4 py-2 rounded-lg text-gray-400 hover:text-white" style={{ border: "1px solid #2C2C2C" }}>
-              3
-            </button>
-            <span className="text-gray-400">...</span>
-            <button className="px-4 py-2 rounded-lg text-gray-400 hover:text-white" style={{ border: "1px solid #2C2C2C" }}>
-              Próximo
-            </button>
-          </div>
-          <div className="text-center text-gray-400 text-sm mt-4">Página 1 de 10</div>
+          {!loading && !error && (
+            <>
+              {/* TABLE */}
+              <div className="rounded-2xl border-2 overflow-hidden" style={{ borderColor: "#00FF00", backgroundColor: "#1A1A1A" }}>
+                <table className="w-full">
+                  <thead style={{ backgroundColor: "#2C2C2C" }}>
+                    <tr>
+                      <th className="px-6 py-3 text-left text-gray-400">created_at</th>
+                      <th className="px-6 py-3 text-left text-gray-400">empresa</th>
+                      <th className="px-6 py-3 text-left text-gray-400">email</th>
+                      <th className="px-6 py-3 text-left text-gray-400">ação</th>
+                      <th className="px-6 py-3 text-left text-gray-400">lang</th>
+                      <th className="px-6 py-3 text-left text-gray-400">motivo_cancelamento</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {acoesData.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-8 text-center text-gray-400">Nenhuma ação encontrada</td>
+                      </tr>
+                    ) : (
+                      acoesData.map((item, idx) => (
+                        <tr
+                          key={item.Id}
+                          className="border-t hover:bg-gray-900 transition-colors"
+                          style={{ borderColor: "#2C2C2C", backgroundColor: idx === 3 ? "rgba(0, 255, 0, 0.05)" : "transparent" }}
+                        >
+                          <td className="px-6 py-4 text-gray-300">
+                            {item.created_at ? new Date(item.created_at).toLocaleString("pt-BR") : "-"}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="px-3 py-1 rounded-full text-sm font-semibold text-black" style={{ backgroundColor: getEmpresaColor(item.empresa) }}>
+                              {item.empresa}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-gray-300">{item.email}</td>
+                          <td className="px-6 py-4">
+                            <span className="px-3 py-1 rounded-full text-sm font-semibold text-black" style={{ backgroundColor: getAcaoColor(item.acao) }}>
+                              {item.acao}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-gray-300">{item.lang}</td>
+                          <td className="px-6 py-4 text-gray-300">{item.motivo_cancelamento ?? "-"}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* PAGINATION UI */}
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <button className="px-4 py-2 rounded-lg text-gray-400 hover:text-white" style={{ border: "1px solid #2C2C2C" }}>
+                  Anterior
+                </button>
+                <button className="px-4 py-2 rounded-lg font-bold" style={{ backgroundColor: "#00FF00", color: "#000000" }}>
+                  1
+                </button>
+                <button className="px-4 py-2 rounded-lg text-gray-400 hover:text-white" style={{ border: "1px solid #2C2C2C" }}>
+                  Próximo
+                </button>
+              </div>
+              <div className="text-center text-gray-400 text-sm mt-4">{acoesData.length} registros</div>
+            </>
+          )}
         </div>
       </div>
     </div>
