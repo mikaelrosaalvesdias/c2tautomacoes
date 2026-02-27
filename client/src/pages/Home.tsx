@@ -164,18 +164,18 @@ export default function Home() {
                 style={{ backgroundColor: "#1A1A1A", border: "1px solid #2C2C2C" }}
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #2C2C2C" }}>
+            <button onClick={() => {}} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm hover:opacity-80 transition-opacity" style={{ backgroundColor: "#1A1A1A", border: "1px solid #2C2C2C" }}>
               Filtrar por Data <ChevronDown size={16} />
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #2C2C2C" }}>
+            <button onClick={() => {}} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm hover:opacity-80 transition-opacity" style={{ backgroundColor: "#1A1A1A", border: "1px solid #2C2C2C" }}>
               Status <ChevronDown size={16} />
             </button>
             <div className="flex items-center gap-4">
-              <Bell size={20} className="cursor-pointer hover:text-gray-300" />
-              <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center" style={{ borderColor: "#00FF00" }}>
+              <Bell size={20} className="cursor-pointer hover:text-gray-300 hover:opacity-80 transition-opacity" onClick={() => {}} />
+              <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity" style={{ borderColor: "#00FF00" }} onClick={() => {}}}>
                 <span className="text-sm font-bold">JD</span>
               </div>
-              <Settings size={20} className="cursor-pointer hover:text-gray-300" />
+              <Settings size={20} className="cursor-pointer hover:text-gray-300 hover:opacity-80 transition-opacity" onClick={() => {}} />
             </div>
           </div>
         </div>

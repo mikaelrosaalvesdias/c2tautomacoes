@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useState } from "react";
 import { Search, ChevronDown, Mail } from "lucide-react";
 import { useLocation } from "wouter";
 import Sidebar from "@/components/Sidebar";
@@ -19,6 +20,7 @@ export default function Inbox() {
   const [, navigate] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const { data: allItems, loading, error } = useAPI<InboxItem>("/inbox", { limit: 200 });
 

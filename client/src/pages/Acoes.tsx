@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useState } from "react";
 import { Search, ChevronDown } from "lucide-react";
 import { useLocation } from "wouter";
 import Sidebar from "@/components/Sidebar";
@@ -18,6 +19,8 @@ interface AcaoItem {
 export default function Acoes() {
   const [, navigate] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEmpresa, setSelectedEmpresa] = useState<string | null>(null);
+  const [selectedAcao, setSelectedAcao] = useState<string | null>(null);
 
   const { data: allItems, loading, error } = useAPI<AcaoItem>("/acoes", { limit: 200 });
 
