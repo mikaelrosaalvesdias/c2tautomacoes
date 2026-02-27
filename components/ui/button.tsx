@@ -7,10 +7,10 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClass: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  default: "bg-slate-900 text-white hover:bg-slate-800",
-  secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200",
-  outline: "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
-  ghost: "text-slate-700 hover:bg-slate-100",
+  default: "bg-neon text-[#0a0a0f] font-semibold hover:bg-neon/90",
+  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+  outline: "border border-border bg-transparent text-foreground hover:bg-secondary",
+  ghost: "text-muted-foreground hover:bg-secondary hover:text-foreground",
   destructive: "bg-red-600 text-white hover:bg-red-500"
 };
 
@@ -26,7 +26,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       className={cn(
-        "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/50 disabled:pointer-events-none disabled:opacity-50",
         variantClass[variant],
         sizeClass[size],
         className

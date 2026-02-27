@@ -42,5 +42,5 @@ export function DataTable({
 }
 
 export function DataTableCellEmpty() {
-  return <TableCell className="text-slate-400">-</TableCell>;
+  return <TableCell className="text-muted-foreground">-</TableCell>;
 }

@@ -176,8 +176,8 @@ export function UserForm({ userId, initialData, initialAccess, isNew = false }: 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-3xl">
       {/* Basic info */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-slate-900">Dados do usuário</h2>
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm space-y-4">
+        <h2 className="text-lg font-semibold text-foreground">Dados do usuário</h2>
 
         {isNew && (
           <div className="space-y-1">
@@ -220,7 +220,7 @@ export function UserForm({ userId, initialData, initialAccess, isNew = false }: 
               minLength={8}
               maxLength={128}
             />
-            <p className="text-xs text-slate-500">O usuário deverá trocar a senha no primeiro acesso.</p>
+            <p className="text-xs text-muted-foreground">O usuário deverá trocar a senha no primeiro acesso.</p>
           </div>
         )}
 
@@ -229,7 +229,7 @@ export function UserForm({ userId, initialData, initialAccess, isNew = false }: 
             <Label htmlFor="role">Perfil</Label>
             <select
               id="role"
-              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-700"
+              className="h-10 w-full rounded-md border border-border bg-secondary px-3 text-sm text-foreground"
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
             >
@@ -252,14 +252,14 @@ export function UserForm({ userId, initialData, initialAccess, isNew = false }: 
 
       {/* Permissions per empresa */}
       {role !== "admin" && (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
-          <h2 className="text-lg font-semibold text-slate-900">Permissões por empresa</h2>
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm space-y-6">
+          <h2 className="text-lg font-semibold text-foreground">Permissões por empresa</h2>
 
           {EMPRESAS.map((empresa) => {
             const perm = permissions.find((p) => p.empresa === empresa) ?? { ...DEFAULT_PERMISSIONS, empresa };
             return (
               <div key={empresa} className="space-y-3">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                   {empresa}
                 </h3>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

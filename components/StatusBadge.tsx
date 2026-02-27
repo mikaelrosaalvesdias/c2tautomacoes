@@ -7,11 +7,11 @@ type StatusBadgeProps = {
 };
 
 const toneClass: Record<NonNullable<StatusBadgeProps["tone"]>, string> = {
-  default: "bg-slate-100 text-slate-700 border-slate-200",
-  neutral: "bg-slate-100 text-slate-700 border-slate-200",
-  success: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  warning: "bg-amber-50 text-amber-700 border-amber-200",
-  danger: "bg-red-50 text-red-700 border-red-200"
+  default: "bg-secondary text-foreground border-border",
+  neutral: "bg-secondary text-muted-foreground border-border",
+  success: "bg-neon/15 text-neon border-neon/30",
+  warning: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  danger: "bg-red-500/15 text-red-400 border-red-500/30"
 };
 
 export function StatusBadge({ label, tone = "default", className }: StatusBadgeProps) {

@@ -48,7 +48,7 @@ export function InboxList({ records }: InboxListProps) {
           onChange={(event) => setQuery(event.target.value)}
         />
         <select
-          className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-700"
+          className="h-10 rounded-md border border-border bg-secondary px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-neon/50"
           value={company}
           onChange={(event) => setCompany(event.target.value)}
         >
@@ -75,14 +75,14 @@ export function InboxList({ records }: InboxListProps) {
           return (
             <TableRow key={id || JSON.stringify(record)}>
               <TableCell>
-                {companyLabel ? <StatusBadge label={companyLabel} /> : <span className="text-slate-400">-</span>}
+                {companyLabel ? <StatusBadge label={companyLabel} /> : <span className="text-muted-foreground">-</span>}
               </TableCell>
-              <TableCell>{tagLabel ? <StatusBadge label={tagLabel} tone="neutral" /> : <span className="text-slate-400">-</span>}</TableCell>
+              <TableCell>{tagLabel ? <StatusBadge label={tagLabel} tone="neutral" /> : <span className="text-muted-foreground">-</span>}</TableCell>
               <TableCell className="max-w-[220px] truncate">{getField(record, ["remetente", "sender"]) || "-"}</TableCell>
               <TableCell className="max-w-[220px] truncate">{getField(record, ["destinatario", "destinatário", "to"]) || "-"}</TableCell>
               <TableCell className="max-w-[260px] truncate">
                 {id ? (
-                  <Link href={`/inbox/${id}`} className="font-medium text-slate-900 hover:underline">
+                  <Link href={`/inbox/${id}`} className="font-medium text-neon hover:underline">
                     {subject || "Sem assunto"}
                   </Link>
                 ) : (

@@ -9,7 +9,7 @@ export function LoadingState({ rows = 6 }: LoadingStateProps) {
     <Card>
       <CardContent className="space-y-3 pt-6">
         {Array.from({ length: rows }).map((_, index) => (
-          <div key={index} className="h-10 animate-pulse rounded-md bg-slate-100" />
+          <div key={index} className="h-10 animate-pulse rounded-md bg-secondary" />
         ))}
       </CardContent>
     </Card>
