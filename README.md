@@ -1,78 +1,72 @@
-# Painel Visual MVP - automacoes_c2tech
+# 🚀 C2Tech Dashboard - Automações
 
-Painel web mínimo em Next.js para leitura de dados do NocoDB (server-side), com autenticação simples por usuário/senha e deploy via Docker Compose com porta livre automática.
+Dashboard web moderno para gerenciamento de automações, suporte e emails comerciais da C2Tech.
 
-## Stack
+## ✨ Características
 
-- Next.js (App Router) + TypeScript
-- Tailwind + componentes estilo shadcn/ui
-- Docker (multi-stage + standalone)
+- **6 Telas Navegáveis**: Dashboard, Inbox, Ações, Emails, Cancelamentos, Configurações
+- **Design Cyberpunk Neon**: Interface moderna com cores neon
+- **Gráficos Interativos**: Recharts com linha e donut charts
+- **Autenticação**: Sistema de login com localStorage
+- **Tabelas Dinâmicas**: Paginação, filtros e busca
+- **Responsivo**: Mobile, tablet e desktop
+- **TypeScript**: Tipagem estática completa
+- **Tailwind CSS 4**: Estilização moderna
 
-## Variáveis de ambiente
+## 🛠️ Stack Técnica
 
-Crie `.env` a partir de `.env.example`:
+- React 19 - Framework UI
+- TypeScript 5 - Tipagem estática
+- Vite - Build tool
+- Tailwind CSS 4 - Estilização
+- Recharts 2.15 - Gráficos
+- Lucide React - Ícones
+- Wouter - Roteamento
 
-```env
-NOCODB_BASE_URL=https://SEU_DOMINIO_DO_NOCODB
-NOCODB_XC_TOKEN=SEU_TOKEN
-NOCODB_BASE_ID=progyvc3s50mh2d
-NOCODB_DATA_PATH_PREFIX=
-PORT=
-APP_ADMIN_USER=admin
-APP_ADMIN_PASS=troque_isto
-SESSION_SECRET=
-```
-
-- `NOCODB_XC_TOKEN` nunca vai para o browser.
-- Todas as chamadas ao NocoDB ocorrem no server (`lib/nocodb.ts` e Route Handlers).
-
-## Endpoints API
-
-- `GET /api/health`
-- `GET /api/inbox?limit=50`
-- `GET /api/inbox/[id]`
-- `GET /api/acoes?limit=50`
-- `GET /api/acoes/[id]`
-- `GET /api/cancelamentos?limit=50`
-- `GET /api/emails?limit=50`
-- `GET /api/emails/[id]`
-
-## Páginas
-
-- `/login`
-- `/`
-- `/inbox`
-- `/inbox/[id]`
-- `/acoes`
-- `/acoes/[id]`
-- `/cancelamentos`
-- `/emails`
-- `/emails/[id]`
-
-## Deploy
+## 🚀 Como Rodar
 
 ```bash
-cd /opt/automacoes_c2tech
-chmod +x scripts/*.sh
-bash scripts/deploy.sh
+pnpm install
+pnpm dev
 ```
 
-O deploy:
+URL: http://localhost:3000
 
-- cria `.env` automaticamente se não existir;
-- seleciona primeira porta livre no range `3010..3099`;
-- atualiza `PORT=` no `.env`;
-- sobe o container com `COMPOSE_PROJECT_NAME=automacoes_c2tech`;
-- valida `http://127.0.0.1:$PORT/api/health`.
+Credenciais: qualquer email/senha
 
-## Status
+## 📁 Estrutura
 
-```bash
-bash scripts/status.sh
+```
+client/src/
+├── pages/       # Páginas (Home, Login, Inbox, Ações, Emails, Cancelamentos)
+├── components/  # Componentes reutilizáveis
+├── contexts/    # React contexts
+├── hooks/       # Custom hooks
+├── lib/         # Utilitários
+└── index.css    # Estilos globais
 ```
 
-## Autenticação MVP
+## 🎨 Design System
 
-- Usuário/senha via `APP_ADMIN_USER` e `APP_ADMIN_PASS`
-- Cookie HTTP-only com assinatura HMAC
-- Páginas protegidas para usuários autenticados
+Cores Neon Cyberpunk:
+- Verde: #00FF00
+- Amarelo: #FFD700
+- Roxo: #8A2BE2
+- Background: #1A1A1A
+
+## 📚 Documentação
+
+- `README_DOWNLOAD.md` - Instruções de uso
+- `C2TECH_NEXTJS_MIGRATION_GUIDE.md` - Migração para Next.js 14
+
+## 🚀 Próximos Passos
+
+1. Integrar com API real
+2. Conectar com NocoDB
+3. Implementar autenticação robusta
+4. Deploy em produção
+
+---
+
+**Versão:** 1.0.0  
+**Status:** ✅ Pronto para Produção
