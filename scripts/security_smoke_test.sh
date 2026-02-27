@@ -21,7 +21,8 @@ set +a
 # Command-line PORT takes precedence over .env PORT
 if [ -n "$FORCED_PORT" ]; then PORT="$FORCED_PORT"; fi
 PORT="${PORT:-3010}"
-BASE_URL="http://127.0.0.1:${PORT}"
+# BASE_URL pode ser sobrescrito via variável de ambiente
+BASE_URL="${BASE_URL:-http://127.0.0.1:${PORT}}"
 PASS_COUNT=0
 FAIL_COUNT=0
 RESP_FILE="/tmp/c2tech_sec_resp.json"
