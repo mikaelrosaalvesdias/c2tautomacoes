@@ -172,7 +172,7 @@ export default function Home() {
             </button>
             <div className="flex items-center gap-4">
               <Bell size={20} className="cursor-pointer hover:text-gray-300 hover:opacity-80 transition-opacity" onClick={() => {}} />
-              <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity" style={{ borderColor: "#00FF00" }} onClick={() => {}}}>
+              <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity" style={{ borderColor: "#00FF00" }} onClick={() => {}}>
                 <span className="text-sm font-bold">JD</span>
               </div>
               <Settings size={20} className="cursor-pointer hover:text-gray-300 hover:opacity-80 transition-opacity" onClick={() => {}} />
