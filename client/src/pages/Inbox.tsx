@@ -24,11 +24,15 @@ export default function Inbox() {
 
   const { data: allItems, loading, error } = useAPI<InboxItem>("/inbox", { limit: 200 });
 
+  // Get unique tags for filter pills
+  const uniqueTags = Array.from(new Set(allItems.map(item => item.etiqueta).filter(Boolean)));
+
   const inboxData = allItems.filter(
     (item) =>
-      !searchTerm ||
-      item.assunto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.remetente?.toLowerCase().includes(searchTerm.toLowerCase())
+      (!searchTerm ||
+        item.assunto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.remetente?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (!selectedTag || item.etiqueta === selectedTag)
   );
 
   const getEmpresaColor = (empresa: string) => {
@@ -68,9 +72,26 @@ export default function Inbox() {
             <button className="px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #00FF00", color: "#00FF00" }}>
               Empresa <ChevronDown size={16} className="inline ml-2" />
             </button>
-            <button className="px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #00FF00", color: "#00FF00" }}>
-              Etiqueta <ChevronDown size={16} className="inline ml-2" />
-            </button>
+            {/* Tag Filter Pills */}
+            <div className="flex gap-2 flex-wrap">
+              {uniqueTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                  className={`px-3 py-1 rounded-full text-sm transition-all ${
+                    selectedTag === tag
+                      ? "font-semibold text-black"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                  style={{
+                    backgroundColor: selectedTag === tag ? "#00FF00" : "transparent",
+                    border: selectedTag === tag ? "1px solid #00FF00" : "1px solid #2C2C2C",
+                  }}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
           </div>
 
           {loading && (

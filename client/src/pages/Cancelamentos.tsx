@@ -19,14 +19,22 @@ export default function Cancelamentos() {
   const [, navigate] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("somente");
+  const [selectedEmpresa, setSelectedEmpresa] = useState<string | null>(null);
+  const [selectedAcao, setSelectedAcao] = useState<string | null>(null);
 
   const { data: cancelamentosData, loading, error } = useAPI<CancelItem>("/cancelamentos", { limit: 200 });
 
+  // Get unique empresas and acoes for filter pills
+  const uniqueEmpresas = Array.from(new Set(cancelamentosData.map(item => item.empresa).filter(Boolean))).slice(0, 5);
+  const uniqueAcoes = Array.from(new Set(cancelamentosData.map(item => item.acao).filter(Boolean))).slice(0, 5);
+
   const filtered = cancelamentosData.filter(
     (item) =>
-      !searchTerm ||
-      item.empresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      (!searchTerm ||
+        item.empresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (!selectedEmpresa || item.empresa === selectedEmpresa) &&
+      (!selectedAcao || item.acao === selectedAcao)
   );
 
   // KPI counts from real data
@@ -75,18 +83,46 @@ export default function Cancelamentos() {
                 style={{ backgroundColor: "#1A1A1A", border: "1px solid #2C2C2C" }}
               />
             </div>
-            <button className="px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #00FF00", color: "#00FF00" }}>
-              Filtrar por Status <ChevronDown size={16} className="inline ml-2" />
-            </button>
-            <button className="px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #00FF00", color: "#00FF00" }}>
-              Filtrar por Empresa <ChevronDown size={16} className="inline ml-2" />
-            </button>
-            <button className="px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #00FF00", color: "#00FF00" }}>
-              Período <ChevronDown size={16} className="inline ml-2" />
-            </button>
-            <button className="px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #00FF00", color: "#00FF00" }}>
-              Filtros
-            </button>
+            {/* Empresa Filter Pills */}
+            <div className="flex gap-2 flex-wrap">
+              {uniqueEmpresas.map((empresa) => (
+                <button
+                  key={empresa}
+                  onClick={() => setSelectedEmpresa(selectedEmpresa === empresa ? null : empresa)}
+                  className={`px-3 py-1 rounded-full text-sm transition-all ${
+                    selectedEmpresa === empresa
+                      ? "font-semibold text-black"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                  style={{
+                    backgroundColor: selectedEmpresa === empresa ? getEmpresaColor(empresa) : "transparent",
+                    border: selectedEmpresa === empresa ? `1px solid ${getEmpresaColor(empresa)}` : "1px solid #2C2C2C",
+                  }}
+                >
+                  {empresa}
+                </button>
+              ))}
+            </div>
+            {/* Acao Filter Pills */}
+            <div className="flex gap-2 flex-wrap">
+              {uniqueAcoes.map((acao) => (
+                <button
+                  key={acao}
+                  onClick={() => setSelectedAcao(selectedAcao === acao ? null : acao)}
+                  className={`px-3 py-1 rounded-full text-sm transition-all ${
+                    selectedAcao === acao
+                      ? "font-semibold text-black"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                  style={{
+                    backgroundColor: selectedAcao === acao ? getAcaoColor(acao) : "transparent",
+                    border: selectedAcao === acao ? `1px solid ${getAcaoColor(acao)}` : "1px solid #2C2C2C",
+                  }}
+                >
+                  {acao}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* STATUS CARDS */}
@@ -166,12 +202,13 @@ export default function Cancelamentos() {
                       <th className="px-6 py-3 text-left text-gray-400">ação</th>
                       <th className="px-6 py-3 text-left text-gray-400">lang</th>
                       <th className="px-6 py-3 text-left text-gray-400">motivo_cancelamento</th>
+                      <th className="px-6 py-3 text-left text-gray-400">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-8 text-center text-gray-400">Nenhum cancelamento encontrado</td>
+                        <td colSpan={7} className="px-6 py-8 text-center text-gray-400">Nenhum cancelamento encontrado</td>
                       </tr>
                     ) : (
                       filtered.map((item) => (
@@ -192,6 +229,14 @@ export default function Cancelamentos() {
                           </td>
                           <td className="px-6 py-4 text-gray-300">{item.lang}</td>
                           <td className="px-6 py-4 text-gray-300 text-sm">{item.motivo_cancelamento ?? "-"}</td>
+                          <td className="px-6 py-4 flex gap-2">
+                            <button onClick={() => {}} className="px-3 py-1 rounded-lg text-sm font-semibold text-black hover:opacity-80 transition-opacity" style={{ backgroundColor: "#00FF00" }}>
+                              Confirmar
+                            </button>
+                            <button onClick={() => {}} className="px-3 py-1 rounded-lg text-sm font-semibold text-white hover:opacity-80 transition-opacity" style={{ backgroundColor: "#8A2BE2" }}>
+                              Detalhes
+                            </button>
+                          </td>
                         </tr>
                       ))
                     )}

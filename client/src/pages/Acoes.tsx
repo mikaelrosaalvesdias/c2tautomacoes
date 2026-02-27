@@ -24,11 +24,17 @@ export default function Acoes() {
 
   const { data: allItems, loading, error } = useAPI<AcaoItem>("/acoes", { limit: 200 });
 
+  // Get unique empresas and acoes for filter pills
+  const uniqueEmpresas = Array.from(new Set(allItems.map(item => item.empresa).filter(Boolean))).slice(0, 5);
+  const uniqueAcoes = Array.from(new Set(allItems.map(item => item.acao).filter(Boolean))).slice(0, 5);
+
   const acoesData = allItems.filter(
     (item) =>
-      !searchTerm ||
-      item.acao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.empresa?.toLowerCase().includes(searchTerm.toLowerCase())
+      (!searchTerm ||
+        item.acao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.empresa?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (!selectedEmpresa || item.empresa === selectedEmpresa) &&
+      (!selectedAcao || item.acao === selectedAcao)
   );
 
   const getEmpresaColor = (empresa: string) => {
@@ -73,12 +79,46 @@ export default function Acoes() {
                 style={{ backgroundColor: "#1A1A1A", border: "1px solid #2C2C2C" }}
               />
             </div>
-            <button className="px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #00FF00", color: "#00FF00" }}>
-              Empresa <ChevronDown size={16} className="inline ml-2" />
-            </button>
-            <button className="px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: "#1A1A1A", border: "1px solid #00FF00", color: "#00FF00" }}>
-              Período <ChevronDown size={16} className="inline ml-2" />
-            </button>
+            {/* Empresa Filter Pills */}
+            <div className="flex gap-2 flex-wrap">
+              {uniqueEmpresas.map((empresa) => (
+                <button
+                  key={empresa}
+                  onClick={() => setSelectedEmpresa(selectedEmpresa === empresa ? null : empresa)}
+                  className={`px-3 py-1 rounded-full text-sm transition-all ${
+                    selectedEmpresa === empresa
+                      ? "font-semibold text-black"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                  style={{
+                    backgroundColor: selectedEmpresa === empresa ? getEmpresaColor(empresa) : "transparent",
+                    border: selectedEmpresa === empresa ? `1px solid ${getEmpresaColor(empresa)}` : "1px solid #2C2C2C",
+                  }}
+                >
+                  {empresa}
+                </button>
+              ))}
+            </div>
+            {/* Acao Filter Pills */}
+            <div className="flex gap-2 flex-wrap">
+              {uniqueAcoes.map((acao) => (
+                <button
+                  key={acao}
+                  onClick={() => setSelectedAcao(selectedAcao === acao ? null : acao)}
+                  className={`px-3 py-1 rounded-full text-sm transition-all ${
+                    selectedAcao === acao
+                      ? "font-semibold text-black"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                  style={{
+                    backgroundColor: selectedAcao === acao ? getAcaoColor(acao) : "transparent",
+                    border: selectedAcao === acao ? `1px solid ${getAcaoColor(acao)}` : "1px solid #2C2C2C",
+                  }}
+                >
+                  {acao}
+                </button>
+              ))}
+            </div>
           </div>
 
           {loading && <div className="text-center py-8 text-gray-400">Carregando dados...</div>}

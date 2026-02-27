@@ -96,12 +96,13 @@ export default function Emails() {
                       <th className="px-6 py-3 text-left text-gray-400">Remetente</th>
                       <th className="px-6 py-3 text-left text-gray-400">Destinatário</th>
                       <th className="px-6 py-3 text-left text-gray-400">Ação</th>
+                      <th className="px-6 py-3 text-left text-gray-400">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {emailsData.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="px-6 py-8 text-center text-gray-400">Nenhum email encontrado</td>
+                        <td colSpan={5} className="px-6 py-8 text-center text-gray-400">Nenhum email encontrado</td>
                       </tr>
                     ) : (
                       emailsData.map((item, idx) => (
@@ -121,6 +122,14 @@ export default function Emails() {
                             <span className="px-3 py-1 rounded-full text-sm font-semibold text-black" style={{ backgroundColor: getAcaoColor(item.acao) }}>
                               {item.acao}
                             </span>
+                          </td>
+                          <td className="px-6 py-4 flex gap-2">
+                            <button onClick={() => {}} className="px-3 py-1 rounded-lg text-sm font-semibold text-black hover:opacity-80 transition-opacity" style={{ backgroundColor: "#FFD700" }}>
+                              Enviar
+                            </button>
+                            <button onClick={() => {}} className="px-3 py-1 rounded-lg text-sm font-semibold text-white hover:opacity-80 transition-opacity" style={{ backgroundColor: "#8A2BE2" }}>
+                              Detalhes
+                            </button>
                           </td>
                         </tr>
                       ))
