@@ -1,0 +1,15 @@
+# CODEOWNERS template (ajuste usernames depois)
+
+# UI (Manus)
+# /app/ @manus-user
+# /components/ @manus-user
+# /public/ @manus-user
+
+# Backend/Core (Codex)
+# /app/api/ @codex-user
+# /lib/auth.ts @codex-user
+# /lib/nocodb.ts @codex-user
+# /middleware.ts @codex-user
+# /scripts/ @codex-user
+# /Dockerfile @codex-user
+# /docker-compose.yml @codex-user

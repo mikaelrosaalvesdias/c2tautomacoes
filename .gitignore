@@ -1,0 +1,19 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+dist/
+*.log
+_manus_ui/
+backup.tgz
+*.zip
+*.tgz
+*.tar.gz
+*.sql
+*.dump
+
+# extras
+coverage/
+docs/ui-baseline/
+.DS_Store
